@@ -1,6 +1,5 @@
 Codebook
 ========
-Codebook was generated on 2014-04-17 09:04:47 during the same process that generated the dataset. See `run_analysis.md` or `run_analysis.html` for details on dataset creation.
 
 Variable list and descriptions
 ------------------------------
@@ -60,7 +59,7 @@ key(dtTidy)
 ```
 
 
-Show a few rows of the dataset
+Show some rows of the dataset
 ------------------------------
 
 
@@ -280,11 +279,11 @@ dtTidy[, .N, by = c(names(dtTidy)[grep("^feat", names(dtTidy))])]
 Save to file
 ------------
 
-Save data table objects to a tab-delimited text file called `DatasetHumanActivityRecognitionUsingSmartphones.txt`.
+Save data table objects to a tab-delimited text file: `TidyDatasetHAR.txt`.
 
 
 ```r
-f <- file.path(path, "DatasetHumanActivityRecognitionUsingSmartphones.txt")
+f <- file.path(path, "TidyDatasetHAR.txt")
 write.table(dtTidy, f, quote = FALSE, sep = "\t", row.names = FALSE)
 ```
 

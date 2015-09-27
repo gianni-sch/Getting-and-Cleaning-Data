@@ -9,7 +9,7 @@
 #######################################################################################################################  
 
 # Set work directory
-setwd("./Project")
+setwd("./")
 path <- getwd()
 
 # Load packages
@@ -103,4 +103,53 @@ data <- merge(data, features[, list(featureNum, featureCode, featureName)], by="
 # Create a new equivalent variables
 data$activity <- factor(data$activityName)
 data$feature <- factor(data$featureName)
+
+# Seperate features from `featureName` using the helper function `grepthis`.
+
+grepthis <- function (regex) {
+  grepl(regex, data$feature)
+}
+# Features with 2 categories
+n <- 2
+y <- matrix(seq(1, n), nrow=n)
+x <- matrix(c(grepthis("^t"), grepthis("^f")), ncol=nrow(y))
+data$featDomain <- factor(x %*% y, labels=c("Time", "Freq"))
+x <- matrix(c(grepthis("Acc"), grepthis("Gyro")), ncol=nrow(y))
+data$featInstrument <- factor(x %*% y, labels=c("Accelerometer", "Gyroscope"))
+x <- matrix(c(grepthis("BodyAcc"), grepthis("GravityAcc")), ncol=nrow(y))
+data$featAcceleration <- factor(x %*% y, labels=c(NA, "Body", "Gravity"))
+x <- matrix(c(grepthis("mean()"), grepthis("std()")), ncol=nrow(y))
+data$featVariable <- factor(x %*% y, labels=c("Mean", "SD"))
+
+# Features with 1 category
+data$featJerk <- factor(grepthis("Jerk"), labels=c(NA, "Jerk"))
+data$featMagnitude <- factor(grepthis("Mag"), labels=c(NA, "Magnitude"))
+
+# Features with 3 categories
+n <- 3
+y <- matrix(seq(1, n), nrow=n)
+x <- matrix(c(grepthis("-X"), grepthis("-Y"), grepthis("-Z")), ncol=nrow(y))
+data$featAxis <- factor(x %*% y, labels=c(NA, "X", "Y", "Z"))
+
+
+# Check to make sure all possible combinations of `feature` are accounted for by all possible combinations of the factor class variables.
+
+
+r1 <- nrow(data[, .N, by=c("feature")])
+r2 <- nrow(data[, .N, by=c("featDomain", "featAcceleration", "featInstrument", "featJerk", "featMagnitude", "featVariable", "featAxis")])
+r1 == r2
+
+
+# Create a tidy data set
+
+setkey(data, subject, activity, featDomain, featAcceleration, featInstrument, featJerk, featMagnitude, featVariable, featAxis)
+dataTidy <- data[, list(count = .N, average = mean(value)), by=key(dt)]
+
+# Save data table objects to a tab-delimited text file: `TidyDatasetHAR.txt`.
+
+f <- file.path(path, "TidyDatasetHAR.txt")
+write.table(dataTidy, f, quote = FALSE, sep = "\t", row.names = FALSE)
+
+
+
 
